@@ -1,0 +1,4 @@
+interface:
+  display_name: "Wiki Memory Setup"
+  short_description: "Create a personal and business memory wiki"
+  default_prompt: "Use $wiki-memory-setup to create or manage a shareable personal/business memory wiki that the LLM organises, cross-links, and maintains."
