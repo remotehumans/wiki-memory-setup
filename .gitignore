@@ -1,0 +1,5 @@
+# ABOUTME: Keeps generated diagram pages and local clutter out of the repo.
+# ABOUTME: Rebuild diagrams with python3 docs/make_diagrams.py.
+docs/*.html
+.DS_Store
+__pycache__/
