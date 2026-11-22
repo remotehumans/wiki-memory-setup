@@ -6,7 +6,7 @@
 
 Made by [Remote Humans](https://www.remotehumans.ai/)
 
-## Who it is for
+## Who's it for
 
 - Business owners and consultants who keep the whole business in their head
 - Small teams who lose what was agreed in last month's meeting
