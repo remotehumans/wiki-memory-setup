@@ -167,5 +167,46 @@ def inside():
                 w, h, "".join(parts))
 
 
+def layers():
+    """Sources flow into wiki pages and on to answers, steered by the rulebook, with the helper files underneath."""
+    w, h = 1200, 560
+    main = [
+        (16, "SOURCES", "Your sources", ["raw/", "Notes, emails, documents.", "Kept as they came."], "in"),
+        (420, "WIKI PAGES", "Your wiki", ["people/, projects/, decisions/ …", "One page per thing, written", "and updated by your AI."], "focal"),
+        (824, "ANSWERS", "Your answers", ["In your chat", "With links to the pages", "they came from."], "out"),
+    ]
+    bw, by, bh = 360, 196, 150
+    parts = [f'<g stroke="{BODY}" stroke-width="2" fill="none" marker-end="url(#arrow)">'
+             f'{arrow(376, by + 75, 416, by + 75)}{arrow(780, by + 75, 820, by + 75)}</g>']
+    # The rulebook sits above and steers both arrows.
+    parts.append(box(300, 64, 600, 84, "step"))
+    parts.append(eyebrow(320, 90, "THE RULEBOOK"))
+    parts.append(text(320, 116, ["AGENTS.md and CLAUDE.md"], size=18, fill=INK, weight=700))
+    parts.append(text(320, 138, ["Tell any AI how this wiki works. The same words for every AI."], size=14))
+    parts.append(f'<g stroke="{MUTED}" stroke-width="1.2" stroke-dasharray="4 4" fill="none">'
+                 f'<line x1="396" y1="148" x2="396" y2="{by + 75}"/><line x1="800" y1="148" x2="800" y2="{by + 75}"/></g>')
+    for x, tag, title, rows, kind in main:
+        parts.append(box(x, by, bw, bh, kind))
+        parts.append(eyebrow(x + 18, by + 28, tag, ACCENT if kind == "focal" else MUTED))
+        parts.append(text(x + 18, by + 60, [title], size=21, fill=INK, weight=700))
+        parts.append(text(x + 18, by + 88, rows, size=14.5, dy=20))
+    helpers = [
+        ("index.md", ["The contents page"]), ("entities.yaml", ["The list of names,", "so Jane is one page"]),
+        ("log.md", ["A diary of changes"]), ("_inbox/unresolved/", ["Real questions only"]), ("Git", ["Every change saved,", "so you can undo"]),
+    ]
+    hw, hg, hy = 224, 16, 400
+    parts.append(eyebrow(16, hy - 14, "HELPER FILES YOUR AI KEEPS UP TO DATE"))
+    for k, (name, rows) in enumerate(helpers):
+        x = 16 + k * (hw + hg)
+        parts.append(box(x, hy, hw, 92, "in"))
+        parts.append(text(x + 16, hy + 32, [name], size=16, fill=INK, weight=700, family=MONO))
+        parts.append(text(x + 16, hy + 58, rows, size=14, dy=18))
+    parts.append(text(16, 40, ["What is under the hood"], size=26, fill=INK, family=SERIF))
+    parts.append(text(16, h - 22, ["Plain text files and Git. No database, no app, no account."], size=19, fill=INK, family=SERIF))
+    return page("under-the-hood", "What is under the hood",
+                "Your sources flow into one page per thing and on to answers, guided by a rulebook, with an index, a name list, a diary, a questions folder and Git history underneath.",
+                w, h, "".join(parts))
+
+
 if __name__ == "__main__":
-    print(", ".join([big_picture(), three_jobs(), inside()]))
+    print(", ".join([big_picture(), three_jobs(), inside(), layers()]))

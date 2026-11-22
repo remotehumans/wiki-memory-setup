@@ -40,6 +40,82 @@ Your wiki is a folder of plain text files on your own computer. Each page links 
 
 Your AI saves every change with Git, a free tool that keeps a history of the folder. If it ever files something wrong, you can go back.
 
+## How it works under the hood
+
+![Your sources flow into one page per thing and on to answers, guided by a rulebook, with an index, a name list, a diary, a questions folder and Git history underneath](docs/images/under-the-hood.png)
+
+There are three layers, taken from Andrej Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) pattern:
+
+1. **Your sources.** The notes, emails and documents you share. If the exact wording matters, your AI keeps a copy in `raw/` and never changes it.
+2. **Your wiki.** One page for each person, project, decision or lesson. Your AI writes these pages and keeps them up to date.
+3. **The rulebook.** `AGENTS.md` and `CLAUDE.md` tell any AI how your wiki works: where things go, how to name them and how to check its work. The two files say the same thing, so Claude, Codex and other tools all follow the same rules.
+
+### What a new wiki looks like
+
+```text
+my-wiki/
+├── START_HERE.md        A short guide for you
+├── AGENTS.md            The rulebook for Codex and most other AI tools
+├── CLAUDE.md            The same rulebook for Claude
+├── index.md             The contents page: every page, by folder
+├── entities.yaml        The list of names, so "Jane" and "Jane Doe" stay one page
+├── log.md               A diary of what changed and when
+├── people/              One page per person
+├── organisations/       One page per company, client or supplier
+├── projects/            ...and 13 more folders like these
+├── raw/                 Original sources, kept as they came
+├── _inbox/unresolved/   Only the things your AI is truly unsure about
+└── tools/               The checks your AI runs after every change
+```
+
+### What a page looks like
+
+Each page is a plain text file. A short header at the top says what kind of page it is. The body is in plain English, and the sources are listed at the end.
+
+```markdown
+---
+type: person
+title: Sam Patel
+description: Our accountant at Patel & Co since 2024
+timestamp: 2026-11-14T10:00:00Z
+---
+
+# Sam Patel
+
+Sam runs the books for [Acme Ltd](/organisations/acme-ltd.md) and files our VAT
+returns each quarter. Prefers email to calls. Suggested we move to
+[Xero](/decisions/move-to-xero.md) in March.
+
+# Citations
+
+[1] Meeting notes, 14 November 2026
+```
+
+### What happens when you add something
+
+1. Your AI reads the whole source.
+2. It looks in the contents page and the list of names, to find pages that already exist.
+3. It works out which pages the source changes. One meeting might update a person, a project and a decision.
+4. It updates those pages, replacing anything out of date, rather than adding another note on top.
+5. It adds links between the pages and notes where each fact came from.
+6. It updates the contents page and the diary.
+7. It runs a check to make sure every page and link is sound.
+8. It saves the change with Git.
+
+## Why it's built this way
+
+- **One page per thing, not one note per meeting.** Most notes apps pile up notes. Your AI then has to search scraps and piece the answer together each time. Here the AI does that work once, when something new arrives, so every answer starts from a page that is already up to date. This is the core idea in [Karpathy's pattern](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
+- **The AI does the filing.** Most second brains fail because people stop sorting their notes. Here nobody sorts. Your AI files as you go and only asks you when it is truly unsure.
+- **Plain text files you own.** No app, database or account to lose. Any AI, any notes app and any computer can read them, today and in ten years.
+- **Git for history.** Every change is saved and can be undone. Several people, or several AIs, can work on one wiki without overwriting each other.
+- **Starter folders.** The fifteen folders tell your AI where to put things and where to look first. A new folder is added only when a new kind of thing keeps coming up, so the structure grows with you.
+- **A list of names.** People get called different things: "Jane", "Jane Doe", "JD". The name list keeps them on one page, so facts about one person never end up in three places.
+- **Sources on every fact.** You can always check where something came from, and your AI can tell which version is newer when two sources disagree.
+- **A contents page, not a search engine.** For hundreds of pages, a good contents page and plain search are enough. There is nothing extra to set up or pay for. You can add smarter search later if your wiki outgrows it.
+- **One rulebook for every AI.** `AGENTS.md` and `CLAUDE.md` say the same thing, so you can switch between Claude, Codex and other tools without the wiki changing shape.
+- **A shared page format.** Pages follow Google's [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md), so other tools can read your wiki too.
+- **A weekly check, not a daily chore.** Filing happens as you go. Once a week your AI looks for duplicates, broken links and out-of-date facts, then fixes them.
+
 ## What you need
 
 ![An open wooden toolbox holding a notebook, a pen and badges for Claude and ChatGPT](docs/images/toolbox.jpg)
