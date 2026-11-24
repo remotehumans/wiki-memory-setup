@@ -27,6 +27,11 @@ MEMORY_AREAS = [
     "source_material",
 ]
 RESERVED_DIRS = {"raw", "tools"}
+DATE_FIELDS = ("updated", "last_contact", "next_touch", "met_on")
+TEMPLATE_TITLES = {"Full Name", "Person Name"}
+# Copies made by Google Drive, OneDrive, Dropbox and iCloud when two edits clash.
+CONFLICT_NAME = re.compile(r"(conflicted copy|\[conflict\]| \(\d+\)$| \([^)]*(mac|pc|laptop|desktop|iphone|'s )[^)]*\)$)", re.IGNORECASE)
+LINK = re.compile(r"\[[^]]*\]\(([^)#\s]+\.md)(?:#[^)]*)?\)")
 REQUIRED = [
     "raw",
     "index.md",
@@ -76,9 +81,17 @@ def main() -> None:
     for required in REQUIRED:
         if not (root / required).exists():
             errors.append(f"missing {required}")
+    # AGENTS.md is the rulebook; CLAUDE.md should import it. Older wikis kept two identical copies.
     if (root / "AGENTS.md").exists() and (root / "CLAUDE.md").exists():
-        if (root / "AGENTS.md").read_bytes() != (root / "CLAUDE.md").read_bytes():
-            errors.append("AGENTS.md and CLAUDE.md differ")
+        claude = (root / "CLAUDE.md").read_bytes()
+        if b"@AGENTS.md" not in claude:
+            if claude == (root / "AGENTS.md").read_bytes():
+                warnings.append("CLAUDE.md duplicates AGENTS.md; run the skill's init script with --upgrade to replace it with an @AGENTS.md import")
+            else:
+                errors.append("CLAUDE.md neither imports AGENTS.md (@AGENTS.md) nor matches it")
+    for area in MEMORY_AREAS:
+        if (root / area).is_dir() and not (root / area / "index.md").exists():
+            warnings.append(f"{area}/index.md missing; run the skill's init script with --upgrade")
 
     index_path = root / "index.md"
     log_path = root / "log.md"
@@ -101,21 +114,38 @@ def main() -> None:
             errors.append(f"log.md: date heading must be YYYY-MM-DD: {heading}")
 
     for directory in knowledge_dirs(root):
+        area_index_path = directory / "index.md"
+        area_index_text = area_index_path.read_text(encoding="utf-8", errors="replace") if area_index_path.exists() else ""
         for path in sorted(directory.rglob("*.md")):
             rel = path.relative_to(root)
             text = path.read_text(encoding="utf-8", errors="replace")
             if path.name in {"index.md", "log.md"}:
                 continue
+            if CONFLICT_NAME.search(path.stem):
+                warnings.append(f"{rel}: looks like a sync conflict copy; merge it into the real page and delete it")
+            for target in LINK.findall(text):
+                if "://" in target:
+                    continue
+                resolved = (root / target.lstrip("/")) if target.startswith("/") else (path.parent / target)
+                if not resolved.resolve().exists():
+                    warnings.append(f"{rel}: broken link {target}")
             meta = frontmatter(text)
             if meta is None:
                 errors.append(f"{rel}: missing or invalid frontmatter")
                 continue
             if not meta.get("type"):
                 errors.append(f"{rel}: missing non-empty type")
+            for field in DATE_FIELDS:
+                value = meta.get(field, "").strip("\"'")
+                if value and value.lower() not in {"null", "none", "~"} and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+                    warnings.append(f"{rel}: {field} should be a date like 2026-12-01, not {value!r}")
+            if meta.get("title", "").strip("\"'") in TEMPLATE_TITLES:
+                warnings.append(f"{rel}: still has the template title")
             if meta.get("timestamp") and not re.match(r"^\d{4}-\d{2}-\d{2}T", meta["timestamp"]):
                 warnings.append(f"{rel}: timestamp should be ISO 8601")
-            if rel.as_posix() not in index_text and path.stem not in index_text:
-                warnings.append(f"{rel}: not listed in index.md")
+            listed = f"{rel.as_posix()}" in index_text or path.stem in index_text or path.name in area_index_text
+            if not listed:
+                warnings.append(f"{rel}: not listed in {directory.name}/index.md")
 
             for target in re.findall(r"\[[^]]+\]\(((?:\.\./)+raw/[^)]+)\)", text):
                 resolved = (path.parent / target).resolve()
