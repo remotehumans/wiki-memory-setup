@@ -6,7 +6,7 @@ When an authorised agent conversation surfaces durable knowledge, the agent file
 
 The system has only three operations: ingest, query, and lint.
 
-- **Ingest** — classify, merge, link, source, validate, commit, push.
+- **Ingest** — classify, merge, link, source, validate, save.
 - **Query** — search maintained knowledge and cite the supporting pages.
 - **Lint** — check structure and meaning, fix safe issues, surface judgement calls.
 
@@ -14,7 +14,7 @@ Explicit commands such as “Add this to my wiki” remain useful, but are not r
 
 ## Multi-agent coordination
 
-Every agent follows byte-identical `AGENTS.md` and `CLAUDE.md`. Git is the audit and coordination layer: pull/rebase before work, preserve unrelated changes, make one coherent direct-to-`main` commit, and push after validation.
+Every agent follows `AGENTS.md`; `CLAUDE.md` imports it. Read a page again just before editing it and never overwrite another agent's work. When Git is set up it is the audit and coordination layer: pull/rebase before work, preserve unrelated changes, make one coherent direct-to-`main` commit, and push after validation. Without Git, the storage provider's version history is the audit trail.
 
 ## Exceptions
 
@@ -22,8 +22,8 @@ Every agent follows byte-identical `AGENTS.md` and `CLAUDE.md`. Git is the audit
 
 ## Post-ingest response
 
-Return a concise receipt: knowledge filed, key pages changed, validation, commit/push state, and genuine exceptions. Do not create a client review task for ordinary memory.
+Return a concise receipt: knowledge filed, key pages changed, validation, save state, and genuine exceptions. Do not create a client review task for ordinary memory.
 
 ## Scheduling
 
-One weekly lint is a sensible default when scheduling is authorised. Do not schedule daily compilation or broad external-account capture. Source monitoring requires separate explicit permission and uses the same direct-ingest path.
+One weekly lint is a sensible default when scheduling is authorised. Follow-up reminders are optional; see `follow-ups.md`. Do not schedule daily compilation or broad external-account capture. Source monitoring requires separate explicit permission and uses the same direct-ingest path.

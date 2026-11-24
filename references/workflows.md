@@ -9,7 +9,7 @@
 - Dates, citations, canonical entities, cross-links, index, and material log entry updated.
 - Exact source preserved only when useful.
 - Structural validation passes.
-- Coherent change committed and pushed on `main`.
+- Coherent change saved: committed and pushed on `main` when Git is set up.
 - Only genuine ambiguity, contradiction, sensitivity, or failed validation enters `_inbox/unresolved/`.
 
 ## Query check
@@ -29,4 +29,4 @@
 - Unresolved exceptions that can now be closed.
 - Safe fixes committed directly; judgement calls reported concisely.
 
-Add a top-level category only for a durable recurring type that does not fit the starter taxonomy. Update both schema files, index, and log together.
+Add a top-level category only for a durable recurring type that does not fit the starter taxonomy. Update `AGENTS.md`, give the area an `index.md`, add it to the root index, and log it.
