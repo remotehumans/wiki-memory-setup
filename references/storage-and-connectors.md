@@ -25,10 +25,14 @@ Rules:
 
 Go one step at a time and wait for the user at each step.
 
-1. Check for a GitHub account. If none, send them to https://github.com/signup and wait.
-2. Check `git` is installed (`git --version`). If not, help install it for their system.
-3. If the GitHub CLI is available, run `gh auth login` and let the user finish in the browser. Otherwise guide them to create a **private** repository on github.com.
-4. Create the wiki with `--storage github --remote <repo URL>`, confirm the repository is private, then push.
+1. Check for a GitHub account. If none, send them to https://github.com/signup and wait. "Continue with Google" is the quickest sign-up. If the page will not load or keeps failing, the browser is often out of date: update it or try another browser.
+2. Check `git` is installed (`git --version`). If not, install it yourself (on a Mac, `xcode-select --install` or Homebrew).
+3. Install the GitHub CLI (`gh`) yourself if it is missing, then sign in without asking the user to type in a terminal:
+   - Run `gh auth login --hostname github.com --git-protocol https --web` in the background and read its output.
+   - Show the user the one-time code and the link (https://github.com/login/device) in the chat, in plain words.
+   - Wait while they open the link, sign in, paste the code and click **Authorize**. Then check with `gh auth status`.
+   - Many agent apps show terminal panes that cannot take typed input, so never ask the user to answer a prompt such as "Y/n" there.
+4. Create a **private** repository with `gh repo create <name> --private`, create the wiki with `--storage github --remote <repo URL>`, then push. Do the work yourself; only send the user to github.com if `gh` cannot be used.
 5. Explain in one line: every change is saved and can be undone, and other agents can use the same wiki.
 
 ## Connecting the wiki as context
@@ -36,6 +40,8 @@ Go one step at a time and wait for the user at each step.
 Once the wiki exists, offer to connect it to the other AI apps the user uses, so those apps can answer from it.
 
 - **GitHub:** Claude.ai and ChatGPT both offer GitHub connectors. Connect the private repository.
+  - **Claude:** connecting GitHub in Claude only signs in (it appears under GitHub Settings, Applications, **Authorized GitHub Apps**). Claude cannot see repositories until the Claude GitHub app is also **installed**: open https://github.com/apps/claude, click **Configure** or **Install**, pick the user's account, choose **All repositories** (or select the wiki repository) and save. It then appears under **Installed GitHub Apps**.
+  - **Claude Projects:** then open the project's settings and add the repository to the project's context, so chats in that project (including on the phone) can read the wiki while the computer is off.
 - **Google Drive:** Claude.ai and ChatGPT both offer Google Drive connectors. Point them at the wiki folder.
 - **OneDrive or SharePoint:** use the Microsoft 365 or SharePoint connector where the app offers one.
 - **Dropbox:** use the Dropbox connector where offered.
